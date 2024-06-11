@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link href="https://unpkg.com/tailwindcss@^1.0/dist/tailwind.min.css" rel="stylesheet">
+  <title>Login</title>
+</head>
+
+<body class="bg-gradient-to-t from-indigo-500 via-purple-500 to-pink-500 min-h-screen">
+  <div class=" w-full flex justify-center items-center">
+    <div class="shadow-xl my-48 mx-64 p-10 text-gray-700 rounded-lg w-1/4">
+      <h2 class="text-center text-2xl font-medium text-white">Login</h2>
+      <form class="text-white" action="/login" method="POST">
+        <label for="username">Username:</label><br />
+        <div class="my-2">
+          <input class="w-full rounded-md text-black" type="text" id="username" name="username" />
+        </div>
+        <div class="my-2">
+          <label for="password">Password:</label>
+        </div>
+        <input class="w-full rounded-md text-black" type="password" id="password" name="password" /><br /><br />
+        <div class="flex justify-center my-2">
+          <input class="bg-blue-700 text-white py-1 rounded-2xl p-5 w-1/2" type="submit" value="Login" />
+        </div>
+      </form>
+      <br />
+      <p class="text-white">Don't have an account? <a class="underline underline-offset-2 text-blue-900 font-bold"
+          href="/register">Register</a></p>
+    </div>
+  </div>
+</body>
+
+</html>

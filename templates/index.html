@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+
+
+</head>
+
+<body class="m-0 bg-gray-900 antialiased">
+  <div class="container max-w-full h-screen flex justify-center">
+    <div class="hero h-full w-11/12">
+      <div class="flex justify-between">
+        <h1
+          class="my-2 bg-gradient-to-r from-blue-600 via-green-500 to-indigo-400 inline-block text-transparent bg-clip-text text-4xl font-bold">
+          ALL CHAT</h1><a
+          class="my-2 text-xl inline-flex items-center justify-center p-0.5 mb-2 me-2 overflow-hidden text-sm font-medium text-white rounded-lg group bg-gradient-to-br from-green-400 to-blue-600 group-hover:from-green-400 group-hover:to-blue-600 hover:text-white dark:text-white focus:ring-4 focus:outline-none focus:ring-green-200 dark:focus:ring-green-800"
+          href="/logout"> <span
+            class="relative px-1.5 py-2 transition-all ease-in duration-75 bg-gray-900 dark:bg-gray-900 rounded-md group-hover:bg-opacity-0">Logout</span></a>
+      </div>
+
+      <div class="content w-full h-5/6 flex divide-x-2">
+
+        <div class="left w-1/3 h-full p-6 outline-4 outline-red-950 "><iframe class="w-full h-full" src=""
+            frameborder="0" id="myIframe" style="display: none"></iframe>
+        </div>
+
+
+        <div class="right h-full w-4/6 px-12">
+
+          <form id="upload-form" method="POST" enctype="multipart/form-data" action="/upload">
+            <div class="split flex p-4 justify-between w-2/3">
+
+
+
+
+
+              <input
+                class="block w-1/2 text-sm text-gray-900 border border-gray-800 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400"
+                aria-describedby="file_input_help" id="file_input" type="file" name="file">
+
+
+
+              <div class="" id="upload-status">
+                <div class='text-white' id="loading" style="display: none;">
+                  <img src="{{ url_for('static', filename='spinner.gif') }}" alt="Loading..." class="h-8" />
+                </div>
+              </div>
+              <input class="bg-blue-700 text-black py-1 rounded-2xl p-5 text-white" type="submit" value="Upload PDF" />
+            </div>
+          </form>
+
+
+
+          <!-- Automatically populate source_id into the input field -->
+          <form id="chat-form" method="POST" action="/chat">
+            <input type="hidden" name="source_id" id="source_id" />
+            <div class="split flex justify-between p-4 space-x-2 mb-4">
+
+              <input type="text" name="message" placeholder="Your message"
+                class="mess p-2 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" />
+              <input class="bg-blue-700 text-white py-1 rounded-xl p-6" type="submit" value="Send" />
+            </div>
+          </form>
+          <div id="stream-response" class="overflow-y-auto h-5/6"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function populateSourceId(sourceId) {
+      document.getElementById("source_id").value = sourceId;
+    }
+
+    function displayResponse(response) {
+      var responseContainer = document.getElementById("response-container");
+      // Clear previous responses
+      while (responseContainer.firstChild) {
+        responseContainer.removeChild(responseContainer.firstChild);
+      }
+      // Add the new response
+      var responseDiv = document.createElement("div");
+      responseDiv.textContent = response;
+      responseContainer.appendChild(responseDiv);
+    }
+
+    // Function to show the iframe
+    function showIframe() {
+      const iframe = document.getElementById("myIframe");
+      iframe.style.display = "block";
+    }
+
+    // Function to hide the iframe
+    function hideIframe() {
+      const iframe = document.getElementById("myIframe");
+      iframe.style.display = "none";
+    }
+
+    document.getElementById("upload-form").addEventListener("submit", function (event) {
+      event.preventDefault();
+      var form = event.target;
+      var formData = new FormData(form);
+
+      // Show loading GIF
+      document.getElementById("loading").style.display = "block";
+
+      fetch("/upload", {
+        method: "POST",
+        body: formData,
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          // Hide loading GIF
+          document.getElementById("loading").style.display = "none";
+
+          if (data.status === "success") {
+            populateSourceId(data.source_id);
+            document.getElementById("upload-status").innerText = "Upload Success";
+            showIframe(); // Show the iframe when upload is successful
+
+            // Fetch the list of files in the uploads folder
+            var fileName = data.filename; // Assuming the server returns the filename
+            var iframe = document.getElementById("myIframe");
+
+            iframe.src = "/uploads/" + fileName;
+
+            // Hide the success message after 5 seconds
+            setTimeout(function () {
+              document.getElementById("upload-status").innerText = "";
+            }, 5000);
+          } else {
+            document.getElementById("upload-status").innerText = "Upload failed!";
+            hideIframe(); // Hide the iframe if upload fails
+          }
+        })
+        .catch((error) => {
+          console.error(error);
+          document.getElementById("upload-status").innerText = "Upload failed!";
+          hideIframe(); // Hide the iframe if upload fails
+        });
+    });
+
+    // Function to handle iframe reload
+    function reloadIframe() {
+      const iframe = document.getElementById("myIframe");
+      iframe.contentWindow.location.reload();
+    }
+
+    // Function to handle chat form submission
+    document.getElementById("chat-form").addEventListener("submit", function (event) {
+      event.preventDefault();
+      var form = event.target;
+      var formData = new FormData(form);
+
+      // Get the message from the form before sending it
+      var message = formData.get("message");
+
+      // Append the message to the stream-response div
+      var questionDiv = document.createElement("div");
+      var ques = document.createElement("p");
+      var brrr = document.createElement("br");
+      ques.classList.add('bg-green-800', 'inline', 'rounded-r-2xl', 'p-4', 'item-end', 'text-white');
+      questionDiv.classList.add('m-10');
+      ques.textContent = "You: " + message;
+      questionDiv.appendChild(ques);
+      document.getElementById("stream-response").appendChild(questionDiv);
+
+
+      fetch("/chat", {
+        method: "POST",
+        body: formData,
+      })
+        .then((response) => {
+          if (response.status === 200) {
+            // Handle the streamed response
+            const streamResponse = document.getElementById("stream-response");
+            const reader = response.body.getReader();
+            let responseText = "";
+
+            reader.read().then(function processText({
+              done,
+              value
+            }) {
+              if (done) {
+                console.log("Stream closed");
+                return;
+              }
+
+              // Convert the received chunk to text
+              const chunkText = new TextDecoder("utf-8").decode(value);
+
+              // Append the chunk to the response text
+              responseText += chunkText;
+
+              // Extract the content from the response object
+              const responseData = JSON.parse(responseText);
+              const content = responseData.content;
+
+              // Display the content character by character with typing effect
+              displayResponseWithTyping(streamResponse, content);
+
+              // Continue reading the stream
+              return reader.read().then(processText);
+            });
+          } else {
+            console.error("Error:", response.statusText);
+          }
+        })
+        .catch((error) => {
+          console.error("Error:", error);
+        });
+    });
+
+    // Function to display the response character by character with typing effect
+    function displayResponseWithTyping(element, text) {
+      const typingSpeed = 10; // Adjust typing speed as needed (milliseconds per character)
+
+      function addText() {
+        let index = 0;
+        const responseDiv = document.createElement("div");
+        responseDiv.classList.add('bg-blue-700', 'my-8', 'ml-4', 'p-4', "rounded-l-2xl", 'text-white')
+        element.appendChild(responseDiv);
+
+        function addChar() {
+          if (index < text.length) {
+            responseDiv.textContent += text.charAt(index);
+            index++;
+            setTimeout(addChar, typingSpeed);
+          }
+        }
+
+        addChar();
+      }
+
+      addText();
+    }
+  </script>
+
+
+</body>
+
+</html>

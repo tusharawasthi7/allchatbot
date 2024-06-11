@@ -1,0 +1,101 @@
+/* Reset some default styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Set a background color and style for the body */
+body {
+  background-color: #f0f0f0;
+  font-family: Arial, sans-serif;
+}
+
+/* Style the container */
+.container {
+  width: 100%;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: black;
+}
+
+.content {
+  display: flex;
+  justify-content: space-around;
+}
+
+.hero {
+  width: 100%;
+  height: 95vh;
+}
+
+iframe {
+  width: 450px;
+  height: 85vh;
+}
+
+.right {
+  padding: 10px;
+  width: 60%;
+  background-color: #f9f9f9;
+}
+
+/* Style headings */
+h1 {
+  font-size: 24px;
+  margin-bottom: 20px;
+  color: #f9f9f9;
+}
+
+h2 {
+  font-size: 18px;
+  margin-top: 20px;
+  margin-bottom: 10px;
+}
+
+/* Style form elements */
+form {
+  margin-top: 20px;
+}
+
+input[type="file"] {
+  margin-right: 10px;
+}
+
+input[type="text"],
+input[type="submit"] {
+  padding: 10px;
+  width: 20%;
+  margin-bottom: 10px;
+}
+
+.mess {
+  width: 70% !important;
+}
+
+/* Style the response area */
+#response-container {
+  margin-top: 20px;
+  padding: 10px;
+  background-color: #f9f9f9;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+}
+
+/* Style buttons */
+input[type="submit"] {
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+input[type="submit"]:hover {
+  background-color: #0056b3;
+}
+
+.split {
+  display: flex;
+  justify-content: space-between;
+}
